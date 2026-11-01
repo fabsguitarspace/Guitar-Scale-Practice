@@ -1,0 +1,9 @@
+{
+  "name": "guitar-scale-practice",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interval Master in versione web statica (HTML/CSS/JS, nessun server).",
+  "scripts": {
+    "test": "node --test tests/run.test.js"
+  }
+}
