@@ -1,6 +1,6 @@
 # ADR 0004 — Temporizzazione: scheduler lookahead sul clock audio
 
-- Stato: Proposto (rivisto il 2026-11-01: levare)
+- Stato: Accettato (2026-11-01, `js/audio/scheduler.js`; il trainer di velocità cambia tempo all'inizio del giro, levare compreso)
 - Data: 2026-11-01
 
 ## Contesto

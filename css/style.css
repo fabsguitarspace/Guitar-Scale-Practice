@@ -1,4 +1,4 @@
-/* Interval Master — mobile-first.
+/* Guitar Scale Practice — mobile-first.
    Breakpoint: 640px (tablet), 1024px (impostazioni in colonna), 1280px (anche cronologia). */
 
 :root {
@@ -93,7 +93,16 @@ button:disabled { cursor: not-allowed; }
   -webkit-backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--line);
 }
-.brand { flex: 1; text-align: center; font-size: 1.05rem; font-weight: 650; letter-spacing: .01em; }
+.brand { flex: 1; min-width: 0; display: grid; justify-items: center; line-height: 1.15; }
+.brand h1 { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.02rem; font-weight: 650; letter-spacing: .01em; }
+.channel {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 2px; padding: 1px 4px;
+  border-radius: 6px; color: var(--muted); font-size: .74rem; text-decoration: none; white-space: nowrap;
+}
+.channel:hover { color: var(--text); background: var(--surface-2); }
+.channel svg { width: 16px; height: 16px; flex: none; }
+.channel rect { fill: #e62117; }
+.channel path { fill: #fff; }
 
 .icon-btn {
   display: inline-grid; place-items: center;
@@ -124,7 +133,7 @@ button:disabled { cursor: not-allowed; }
   border-top: 1px solid var(--line);
 }
 .draw-btn {
-  display: block; width: 100%; min-height: 56px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px;
   border: 0; border-radius: 16px;
   background: var(--primary); color: var(--primary-ink);
   font-size: 1.15rem; font-weight: 650; letter-spacing: .01em;
@@ -304,7 +313,7 @@ select {
 @media (min-width: 1024px) {
   :root { --drawbar-h: 0px; }
   .only-compact { display: none; }
-  .brand { text-align: left; padding-left: 16px; }
+  .brand { justify-items: start; padding-left: 16px; }
 
   .layout {
     display: grid;
@@ -358,4 +367,193 @@ select {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ============================================================ Pratica (audio, esercizi, tab) */
+
+:root {
+  --playing: #e5484d;
+  --playing-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --playing: #ff6b6f; --playing-ink: #1a0b0b; }
+}
+:root[data-theme="dark"] { --playing: #ff6b6f; --playing-ink: #1a0b0b; }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Icona play/stop condivisa */
+.t-icon {
+  display: inline-block; width: 14px; height: 16px; background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.is-on .t-icon { width: 14px; height: 14px; clip-path: none; border-radius: 2px; }
+
+/* --- Barra in basso: pulsante "Scala casuale" + trasporto */
+.draw-icon { display: none; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.transport-slot { display: none; }
+body.has-transport .draw-bar { display: flex; align-items: center; gap: 8px; }
+body.has-transport .draw-bar .draw-btn { flex: none; width: 56px; padding: 0; background: var(--surface-2); color: var(--text); }
+body.has-transport .draw-bar .draw-icon { display: block; }
+body.has-transport .draw-bar .draw-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.has-transport .transport-slot { display: flex; flex: 1; min-width: 0; }
+
+.transport { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.t-play {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; min-width: 0; padding: 0 16px;
+  border: 0; border-radius: 16px; background: var(--primary); color: var(--primary-ink);
+  font-size: 1.05rem; font-weight: 650;
+}
+.t-play.is-on { background: var(--playing); color: var(--playing-ink); }
+.t-play:disabled { opacity: .35; }
+.t-bpm { display: flex; align-items: center; flex: none; height: 56px; border-radius: 16px; background: var(--surface-2); }
+.t-bpm button { width: 40px; height: 100%; border: 0; background: transparent; font-size: 1.3rem; border-radius: 16px; }
+.t-bpm button:hover { background: color-mix(in srgb, var(--text) 8%, transparent); }
+.t-bpm-box { display: grid; justify-items: center; min-width: 40px; line-height: 1.05; }
+.t-bpm-val { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+.t-bpm-box small { font-size: .65rem; color: var(--muted); letter-spacing: .04em; }
+.t-tap { flex: none; height: 56px; padding: 0 12px; border: 0; border-radius: 16px; background: var(--surface-2); font-weight: 600; }
+@media (max-width: 419px) { .transport-slot .t-tap { display: none; } }
+
+/* --- Ascolto rapido sulle card delle diteggiature */
+.pattern figcaption { justify-content: space-between; flex-wrap: nowrap; align-items: center; }
+.cap-text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; }
+.quick-btn {
+  flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px;
+  border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text);
+}
+.quick-btn .t-icon { width: 12px; height: 14px; margin-left: 2px; }
+.quick-btn.is-on { background: var(--playing); color: var(--playing-ink); }
+.quick-btn.is-on .t-icon { width: 12px; height: 12px; margin-left: 0; }
+
+/* --- Pallini: percorso, attenuati, nota corrente */
+.dot.is-off { opacity: .28; }
+.dot circle, .dot text { transition: transform .08s ease; transform-box: fill-box; transform-origin: center; }
+.dot.is-playing { opacity: 1; }
+.dot.is-playing circle { fill: var(--playing); transform: scale(1.22); stroke: var(--surface); stroke-width: 2; }
+.dot.is-playing text { fill: var(--playing-ink); }
+
+/* --- Pannello Esercizi */
+.practice-host { margin-top: 16px; }
+.practice { padding: 0; overflow: hidden; }
+.practice > summary, .axis > summary { list-style: none; cursor: pointer; }
+.practice > summary::-webkit-details-marker, .axis > summary::-webkit-details-marker { display: none; }
+.practice-summary {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  min-height: 56px; padding: 16px 44px 16px 18px; position: relative;
+}
+.practice-summary::after, .axis > summary::after {
+  content: ""; position: absolute; right: 18px; top: 50%; width: 8px; height: 8px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg); transition: transform .15s;
+}
+.practice[open] > .practice-summary::after, .axis[open] > summary::after { transform: translateY(-30%) rotate(-135deg); }
+.practice-title { font-size: 1.1rem; font-weight: 700; }
+.practice-sum { color: var(--muted); font-size: .88rem; }
+.practice-body { padding: 0 14px 16px; }
+.transport-home:empty { display: none; }
+.transport-home { margin-bottom: 12px; }
+.transport-home .transport { justify-content: flex-start; }
+.transport-home .t-play { flex: 0 1 220px; }
+.ios-hint { margin: 0 0 10px; }
+
+.axis { border-top: 1px solid var(--line); }
+.axis > summary {
+  position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+  min-height: 48px; padding: 12px 40px 12px 4px;
+}
+.axis-title { font-weight: 650; min-width: 64px; }
+.axis-sum { color: var(--muted); font-size: .86rem; }
+.axis-body { display: grid; gap: 12px; padding: 4px 4px 16px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field-label { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.field input[type="number"] {
+  width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+}
+.field input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 32px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row.three { grid-template-columns: repeat(3, 1fr); }
+.seg-wrap { flex-wrap: wrap; }
+.seg-wrap button { flex: 1 1 auto; min-width: 0; }
+.toggles { display: flex; flex-wrap: wrap; gap: 0 18px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  min-width: 44px; min-height: 40px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 600;
+}
+.chip[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+.practice-error { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); }
+.practice-body > .field { margin: 14px 0 4px; }
+
+/* --- Viste */
+.view { margin-top: 16px; }
+.view-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.view-title { font-size: .8rem; font-weight: 650; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+.view-head .view-title { margin: 0; }
+.view-head .row-buttons { margin: 0; }
+.neck-scroll {
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-behavior: smooth;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 6px 4px 2px;
+}
+.neck-scroll .fretboard { width: auto; max-width: none; }
+.tab-scroll {
+  max-height: min(60vh, 520px); overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth;
+  margin-top: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 4px 0;
+}
+.tab-system { display: block; font-family: var(--font); }
+.tab-lines line { stroke: var(--fb-line); stroke-width: .8; }
+.tab-bar { stroke: var(--fb-line); stroke-width: 1.2; }
+.tab-clef text { fill: var(--muted); font-size: 12px; font-weight: 700; }
+.tab-barnum { fill: var(--muted); font-size: 9px; }
+.tab-note { fill: var(--muted); font-size: 10px; font-style: italic; }
+.tab-num rect { fill: var(--surface); }
+.tab-num text { fill: var(--text); font-size: 11.5px; font-weight: 650; font-family: var(--mono); }
+.tab-num.is-playing rect { fill: var(--playing); }
+.tab-num.is-playing text { fill: var(--playing-ink); }
+.tab-stems line { stroke: var(--text); stroke-width: 1; }
+.tab-dot, .tab-beams rect { fill: var(--text); }
+.tab-flag { fill: none; stroke: var(--text); stroke-width: 1.6; }
+.tab-tuplet { fill: var(--muted); font-size: 10px; font-style: italic; }
+.tab-accent { fill: var(--text); font-size: 12px; font-weight: 700; }
+.tab-rest path { stroke: var(--text); stroke-width: 1.4; }
+.tab-rest circle { fill: var(--text); }
+
+.degree-scroll { max-height: 9.5em; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; }
+.degree-seq { display: flex; flex-wrap: wrap; gap: 4px 2px; list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: .95rem; }
+.degree-seq li { min-width: 1.9em; padding: 2px 4px; border-radius: 6px; text-align: center; }
+.degree-seq li.grp-start { margin-left: 8px; }
+.degree-seq li:first-child { margin-left: 0; }
+.degree-seq li.is-accent { font-weight: 800; }
+.degree-seq li.is-rest { color: var(--muted); }
+.degree-seq li.is-playing { background: var(--playing); color: var(--playing-ink); }
+
+@media (min-width: 640px) {
+  .practice-body { padding: 0 20px 20px; }
+  .axis-body { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .axis-body > .muted, .axis-body > .toggles, .axis-body > .field-row { grid-column: 1 / -1; }
+}
+
+/* --- Stampa: intestazione della scala, tablatura e gradi */
+@media print {
+  .topbar, .panel, .draw-bar, .backdrop, .fingerings, .axis, .transport-home, .ios-hint,
+  .practice-body > .field, .view-neck, .view-head .row-buttons, .practice-summary::after { display: none !important; }
+  body { background: #fff; color: #000; }
+  .layout { display: block; }
+  .main { padding: 0; }
+  .card { box-shadow: none; border: 0; }
+  .practice > summary { padding: 8px 0; }
+  .tab-scroll, .degree-scroll { max-height: none; overflow: visible; border: 0; }
+  .tab-system { break-inside: avoid; }
+}
+
+/* Desktop: il trasporto vive nel pannello, "Scala casuale" torna pulsante esteso */
+@media (min-width: 1024px) {
+  body.has-transport .draw-bar { display: block; }
+  body.has-transport .draw-bar .draw-btn {
+    display: inline-flex; width: auto; padding: 0 32px; background: var(--primary); color: var(--primary-ink);
+  }
+  body.has-transport .draw-bar .draw-icon { display: none; }
+  body.has-transport .draw-bar .draw-label { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+  body.has-transport .transport-slot { display: none; }
 }

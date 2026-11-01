@@ -1,6 +1,6 @@
 # ADR 0006 — Ambito degli esercizi: altezze prima, posizioni poi (tutta la tastiera)
 
-- Stato: Proposto (rivisto il 2026-11-01: tutta la tastiera; poi insiemi di corde, collegamento delle posizioni, estensione)
+- Stato: Accettato (2026-11-01, `js/exercises/pool.js`)
 - Data: 2026-11-01
 
 ## Contesto

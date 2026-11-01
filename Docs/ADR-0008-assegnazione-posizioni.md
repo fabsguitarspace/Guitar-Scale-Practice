@@ -1,6 +1,6 @@
 # ADR 0008 — Assegnazione delle posizioni: programmazione dinamica (Viterbi) con vincoli
 
-- Stato: Proposto (rivisto il 2026-11-01: profili orizzontale/verticale, vincoli per segmento)
+- Stato: Accettato (2026-11-01, implementato in `js/exercises/fingering.js`)
 - Data: 2026-11-01
 
 ## Contesto
@@ -43,6 +43,16 @@ e il **collegamento delle posizioni**. Deve essere deterministico e testabile.
 - **Ripetizione della stessa altezza**: resta nella stessa posizione (costo 0).
 - Gli ambiti a posizione unica (diteggiatura 3NPS) hanno un candidato per nota: Viterbi
   restituisce banalmente quello. Un solo algoritmo per tutti gli ambiti.
+
+## Revisione in implementazione: stato con la posizione della mano
+
+Con lo stato fatto solo dalla posizione della nota (prima versione), il costo dipendeva dal
+passaggio tra due note consecutive: la mano "scivolava" lungo il manico a piccoli passi e il
+profilo verticale non restava in posizione. Lo stato di Viterbi è quindi
+**(posizione della nota, finestra della mano)**: la mano copre i tasti `w … w+3`, estendibili a
+`w+4` con il costo `stretch`; spostare la finestra costa `shiftFixed + |Δw| · shiftPerFret`; le
+corde a vuoto ereditano la finestra precedente. Gli stati per nota sono al massimo circa 30, quindi
+la complessità resta trascurabile. I pesi effettivi dei profili sono in `PROFILES` nel codice.
 
 ## Alternative scartate
 

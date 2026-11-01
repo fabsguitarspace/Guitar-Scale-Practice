@@ -1,6 +1,6 @@
 # ADR 0003 — Suono: Karplus-Strong pre-renderizzato in AudioBuffer
 
-- Stato: Proposto (suono sintetizzato confermato dall'utente il 2026-11-01)
+- Stato: Accettato (2026-11-01, `js/audio/ks.js`, `js/audio/engine.js`)
 - Data: 2026-11-01
 
 ## Contesto
@@ -18,9 +18,11 @@ crea un `AudioBufferSourceNode` → `GainNode` (inviluppo e accento) → bus mas
 
 Dettagli:
 
-- **Intonazione**: il ritardo intero `N = floor(sr / f)` più il filtro media (+0,5 campioni)
-  produce `f0 = sr / (N + 0,5)`. L'errore si corregge con `playbackRate = f / f0`, che evita
-  i filtri allpass frazionari (senza correzione, a 1319 Hz l'errore sarebbe circa 24 cent).
+- **Intonazione**: con la linea di ritardo intera `N = floor(sr / f + 0,5)` e il filtro media
+  `y[n] = ½(y[n−N] + y[n−N+1])` il periodo è di `N − 0,5` campioni, quindi `f0 = sr / (N − 0,5)`.
+  L'errore si corregge con `playbackRate = f / f0`, che evita i filtri allpass frazionari (senza
+  correzione, a 1319 Hz l'errore sarebbe di decine di cent). Il test di intonazione ha corretto una
+  prima stima sbagliata (`N + 0,5`).
 - **Timbro**: rumore iniziale passato in un passa-basso, con brillantezza che cresce con la
   velocity; decadimento per altezza (le note acute si spengono prima).
 - **Smorzamento per corda**: una nuova nota sulla stessa corda chiude la precedente con un

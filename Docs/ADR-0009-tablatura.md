@@ -1,6 +1,6 @@
 # ADR 0009 — Tablatura dell'esercizio in SVG generata dagli eventi
 
-- Stato: Proposto (rivisto il 2026-11-01: anacrusi)
+- Stato: Accettato (2026-11-01, `js/tab/layout.js`, `js/tab/render.js`)
 - Data: 2026-11-01
 
 ## Contesto

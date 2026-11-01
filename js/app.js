@@ -11,7 +11,7 @@
 
   const PITCH_LABELS = ['C', 'C♯/D♭', 'D', 'D♯/E♭', 'E', 'F', 'F♯/G♭', 'G', 'G♯/A♭', 'A', 'A♯/B♭', 'B'];
   const HISTORY_LEN = 12;
-  const STORAGE_KEY = 'interval-master:v1';
+  const STORAGE_KEY = 'interval-master:v1'; // chiave storica, mantenuta per non perdere le impostazioni
   const DESKTOP = window.matchMedia('(min-width: 1024px)');
   const WIDE = window.matchMedia('(min-width: 1280px)');
 
@@ -177,6 +177,7 @@
     const out = $('#result');
     const p = state.current;
     if (!p) {
+      window.Practice.unmount();
       out.replaceChildren($('#tpl-empty').content.cloneNode(true));
       return;
     }
@@ -200,6 +201,7 @@
           onclick: () => { state.revealed = true; renderResult(); },
         }, 'Mostra soluzione'),
       ));
+      window.Practice.unmount();
       out.replaceChildren(head);
       return;
     }
@@ -228,8 +230,14 @@
         const start = pat.startDegree;
         const caption = `Diteggiatura ${i + 1}`;
         const meta = `dal grado ${T.degreeToString(scale.degrees[start], true)} (${T.noteToString(notes[start], true)}) · tasti ${pat.minFret}–${pat.maxFret}`;
-        return h('figure', { class: 'card pattern' },
-          h('figcaption', {}, h('strong', {}, caption), h('span', {}, meta)),
+        return h('figure', { class: 'card pattern', 'data-pattern': i },
+          h('figcaption', {},
+            h('span', { class: 'cap-text' }, h('strong', {}, caption), h('span', {}, meta)),
+            h('button', {
+              type: 'button', class: 'quick-btn', 'data-quick': i,
+              'aria-label': `Ascolta la diteggiatura ${i + 1}`,
+              onclick: () => window.Practice.quickPlay(i),
+            }, h('span', { class: 't-icon', 'aria-hidden': 'true' }))),
           F.render(pat, labels, `${caption}, ${meta}`),
         );
       }),
@@ -253,7 +261,16 @@
       grid,
     );
 
-    out.replaceChildren(head, fingerings);
+    const practiceHost = h('div', { class: 'practice-host' });
+    out.replaceChildren(head, practiceHost, fingerings);
+    window.Practice.mount({
+      key: `${p.scale}:${p.root.letter}:${p.root.accidental}`,
+      scale, notes, patterns,
+      rootPc: T.pitchClass(p.root),
+      labelMode: state.dotLabel,
+      container: practiceHost,
+      title: `${T.noteToString(p.root)} ${scale.name}`,
+    });
   }
 
   // ------------------------------------------------------------ Cronologia
@@ -344,14 +361,23 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { closePanels(); return; }
-      if (e.key !== ' ' && e.key !== 'Enter') return;
+      if (![' ', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
       if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
       if (document.body.classList.contains('has-drawer')) return;
-      // Come in egui: niente scorciatoia mentre un controllo usa la tastiera.
+      // Niente scorciatoia mentre un controllo usa la tastiera.
       const t = e.target;
-      if (t.closest && t.closest('input, select, textarea, button, a, [contenteditable]')) return;
+      if (t.closest && t.closest('input, select, textarea, button, a, summary, [contenteditable], .neck-scroll')) return;
+      const P = window.Practice;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (!P.isActive()) return;
+        e.preventDefault();
+        P.bumpBpm(e.key === 'ArrowRight' ? 5 : -5);
+        return;
+      }
       e.preventDefault();
-      pickRandom();
+      // Spazio: Play/Stop con il pannello Esercizi aperto; Invio: nuova scala.
+      if (e.key === ' ' && P.isActive() && P.isOpen()) P.togglePlay();
+      else pickRandom();
     });
   }
 

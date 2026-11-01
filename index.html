@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Estrai una scala casuale e studiane note, formula e diteggiature a 3 note per corda per chitarra.">
+  <meta name="description" content="Guitar Scale Practice: scale casuali, diteggiature, esercizi con audio e tablatura su tutta la tastiera. Di Fabrizio's Guitar Space.">
   <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#16181d" media="(prefers-color-scheme: dark)">
-  <title>Interval Master</title>
+  <title>Guitar Scale Practice</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8821e'/%3E%3Cg stroke='%23fff' stroke-width='2'%3E%3Cpath d='M6 10h20M6 16h20M6 22h20'/%3E%3C/g%3E%3Ccircle cx='12' cy='16' r='4' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -15,7 +15,13 @@
     <button class="icon-btn only-compact" id="open-settings" type="button" aria-controls="settings" aria-expanded="false" aria-label="Impostazioni">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
     </button>
-    <h1 class="brand">Interval Master</h1>
+    <div class="brand">
+      <h1>Guitar Scale Practice</h1>
+      <a class="channel" href="https://www.youtube.com/@fabsguitarspace" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9.2v5.6l4.8-2.8z"/></svg>
+        <span>Fabrizio's Guitar Space</span>
+      </a>
+    </div>
     <button class="icon-btn only-compact-history" id="open-history" type="button" aria-controls="history" aria-expanded="false" aria-label="Cronologia">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
     </button>
@@ -64,8 +70,12 @@
 
     <main class="main" id="main">
       <div class="draw-bar">
-        <button type="button" class="draw-btn" id="draw">Scala casuale</button>
-        <p class="hint">Scorciatoia: barra spaziatrice / Invio</p>
+        <button type="button" class="draw-btn" id="draw" aria-label="Scala casuale">
+          <svg class="draw-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.6l2.4 4.8C14.3 16 15.5 17 17.5 17H21M3 17h3.5c1.4 0 2.4-.5 3.2-1.3M14.3 8.3c.8-.8 1.8-1.3 3.2-1.3H21M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>
+          <span class="draw-label">Scala casuale</span>
+        </button>
+        <div class="transport-slot" id="transport-slot"></div>
+        <p class="hint">Invio: nuova scala · Spazio: play/stop (con gli esercizi aperti) · ← →: tempo</p>
       </div>
       <p class="warning" id="empty-pool" hidden>Seleziona almeno una famiglia di scale.</p>
 
@@ -91,13 +101,24 @@
         <g class="es-frets"><path d="M30 8v50M60 8v50M90 8v50"/></g>
         <circle cx="45" cy="28" r="6" class="es-root"/><circle cx="75" cy="38" r="6"/><circle cx="105" cy="18" r="6"/>
       </svg>
-      <p>Premi <strong>Scala casuale</strong> per estrarre una scala tra 33 scale × 12 toniche.</p>
+      <p>Premi <strong>Scala casuale</strong> per estrarre una scala tra 33 scale × 12 toniche, poi ascoltala ed esercitati.</p>
     </div>
   </template>
 
   <script src="js/theory.js"></script>
   <script src="js/guitar.js"></script>
+  <script src="js/exercises/pool.js"></script>
+  <script src="js/exercises/melodic.js"></script>
+  <script src="js/exercises/rhythm.js"></script>
+  <script src="js/exercises/fingering.js"></script>
+  <script src="js/exercises/presets.js"></script>
+  <script src="js/tab/layout.js"></script>
+  <script src="js/tab/render.js"></script>
+  <script src="js/audio/ks.js"></script>
+  <script src="js/audio/engine.js"></script>
+  <script src="js/audio/scheduler.js"></script>
   <script src="js/fretboard.js"></script>
+  <script src="js/practice.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

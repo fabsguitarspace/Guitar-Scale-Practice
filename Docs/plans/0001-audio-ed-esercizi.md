@@ -1,6 +1,6 @@
 # Piano 0001 — Ascolto, esercizi su tutta la tastiera e tablatura
 
-- Stato: Proposto (rivisto il 2026-11-01 con le scelte dell'utente e il catalogo degli esercizi)
+- Stato: Completato (2026-11-01): fasi 1–6 implementate; vedi la sezione "Esito" in fondo
 - Data: 2026-11-01
 - Decisioni: ADR [0003](../ADR-0003-sintesi-karplus-strong.md), [0004](../ADR-0004-scheduler-lookahead.md),
   [0005](../ADR-0005-modello-esercizi.md), [0006](../ADR-0006-ambito-esercizi.md),
@@ -171,3 +171,18 @@ Nessuna bloccante. Default proposti, modificabili in fase di sviluppo:
   pratico della scala intera su 0–24;
 - corde a vuoto: ammesse;
 - tempo: 4/4, 80 BPM, count-in attivo, metronomo attivo.
+
+## Esito (2026-11-01)
+
+Tutte le fasi sono implementate. Differenze rispetto al piano:
+
+- **Moduli**: ogni file pubblica un proprio oggetto globale (`Pool`, `Melodic`, `Rhythm`,
+  `Fingering`, `Presets`, `TabLayout`, `TabRender`, `KS`, `AudioEngine`, `Scheduler`, `Practice`)
+  invece di un unico `Exercises`; `neck.js` non esiste perché la tastiera intera riusa
+  `Fretboard.render` (ADR 0007).
+- **Intonazione**: il test ha mostrato che il periodo della linea di ritardo è `N − 0,5`, non
+  `N + 0,5` (ADR 0003 corretto).
+- **Posizioni**: lo stato di Viterbi include la finestra della mano (ADR 0008, revisione).
+- **Test**: 35 test in `tests/` (teoria, esercizi, posizioni, audio con clock finto, tablatura).
+- **Non verificato automaticamente**: l'ascolto reale su iPhone e Android (latenza, tasto
+  silenzioso) e la resa della tab ridisegnata alla larghezza A4 in stampa (`beforeprint`).

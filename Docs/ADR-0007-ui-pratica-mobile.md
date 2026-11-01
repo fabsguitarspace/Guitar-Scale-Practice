@@ -1,6 +1,6 @@
 # ADR 0007 — UI della pratica: pannello Esercizi, tastiera intera, tablatura, trasporto
 
-- Stato: Proposto (rivisto il 2026-11-01: tastiera intera e tablatura; poi pannello sui tre assi Cosa/Come/Dove)
+- Stato: Accettato (2026-11-01, `js/practice.js`)
 - Data: 2026-11-01
 
 ## Contesto
@@ -82,6 +82,9 @@ Mobile (375px)                          Desktop (≥1024px)
 
 - `app.js` delega a `practice.js` (`Practice.mount({scale, root, notes, patterns, container})`) e
   cede la barra in basso tramite un'API minima.
-- Nuovo componente `js/neck.js` (diagramma della tastiera intera); `fretboard.js` resta per le card.
-- Le impostazioni della pratica (ambito, preset, ritmo, BPM, metronomo, loop, viste visibili) si
-  salvano nella stessa chiave `localStorage`; `load()` già ignora i campi sconosciuti o mancanti.
+- Il diagramma della tastiera intera riusa `Fretboard.render` con le opzioni `fretFrom/fretTo`,
+  `cellWidth` (SVG a larghezza fissa dentro il contenitore scorrevole) e `path` (pallini fuori
+  percorso attenuati); non serve un `neck.js` separato.
+- Le impostazioni della pratica (ambito, preset, ritmo, BPM, metronomo, loop, trainer, volumi,
+  viste) si salvano in una chiave `localStorage` propria (`gsp:practice:v1`), separata da quella
+  dell'estrazione: i due moduli restano indipendenti.

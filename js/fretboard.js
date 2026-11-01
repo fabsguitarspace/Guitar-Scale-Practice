@@ -10,7 +10,7 @@
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
   // Coordinate nel viewBox: l'SVG si adatta poi alla larghezza disponibile.
-  const W = 340;
+  const BASE_W = 340;
   const H = 178;
   const LEFT = 20;   // spazio per i nomi delle corde
   const TOP = 14;
@@ -28,15 +28,21 @@
    * @param pattern  risultato di Guitar.threeNpsPatterns
    * @param labels   etichetta per ogni indice di grado (gradi o note)
    * @param title    testo accessibile
+   * @param opts     { fretFrom, fretTo: intervallo forzato (tastiera intera);
+   *                   cellWidth: larghezza fissa del tasto in px (SVG non ridimensionato);
+   *                   path: Set di "corda:tasto" del percorso, gli altri pallini sono attenuati }
    */
-  function render(pattern, labels, title) {
-    const hasOpen = pattern.minFret === 0;
-    const first = Math.max(pattern.minFret, 1);
-    const last = Math.max(pattern.maxFret, first);
+  function render(pattern, labels, title, opts = {}) {
+    const lo = opts.fretFrom ?? pattern.minFret;
+    const hi = opts.fretTo ?? pattern.maxFret;
+    const hasOpen = lo === 0;
+    const first = Math.max(lo, 1);
+    const last = Math.max(hi, first);
     const cells = last - first + 1;
 
     const openW = hasOpen ? 22 : 0;
     const x0 = LEFT + openW; // prima linea di tasto (capotasto se first === 1)
+    const W = opts.cellWidth ? x0 + cells * opts.cellWidth + RIGHT : BASE_W;
     const cw = (W - RIGHT - x0) / cells;
     const sp = (H - BOTTOM - TOP) / 5;
     const stringY = (s) => TOP + (5 - s) * sp;
@@ -44,6 +50,7 @@
 
     const svg = el('svg', {
       viewBox: `0 0 ${W} ${H}`,
+      ...(opts.cellWidth ? { width: W, height: H } : {}),
       class: 'fretboard',
       role: 'img',
       'aria-label': title,
@@ -110,7 +117,10 @@
     for (const p of pattern.positions) {
       const cx = fretX(p.fret);
       const cy = stringY(p.string);
-      const g = el('g', { class: p.degree === 0 ? 'dot is-root' : 'dot' });
+      const key = p.string + ':' + p.fret;
+      let cls = p.degree === 0 ? 'dot is-root' : 'dot';
+      if (opts.path && !opts.path.has(key)) cls += ' is-off';
+      const g = el('g', { class: cls, 'data-s': p.string, 'data-f': p.fret });
       g.appendChild(el('circle', { cx, cy, r }));
       const text = labels[p.degree];
       g.appendChild(el('text', {

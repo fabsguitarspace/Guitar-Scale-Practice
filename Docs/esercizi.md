@@ -1,6 +1,6 @@
 # Catalogo degli esercizi
 
-- Stato: Proposto
+- Stato: Accettato (2026-11-01): tutti i preset sono in `js/exercises/presets.js`
 - Data: 2026-11-01
 - Riferimenti: [ADR 0005](ADR-0005-modello-esercizi.md) (melodia × ritmo),
   [ADR 0006](ADR-0006-ambito-esercizi.md) (ambito ed estensione),

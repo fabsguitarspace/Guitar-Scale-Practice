@@ -1,6 +1,6 @@
 # ADR 0005 — Esercizi: generatore melodico × modello ritmico, funzioni pure
 
-- Stato: Proposto (rivisto il 2026-11-01: `shape`, accenti spostati, levare; catalogo in [esercizi.md](esercizi.md))
+- Stato: Accettato (2026-11-01, `js/exercises/melodic.js`, `rhythm.js`, `presets.js`)
 - Data: 2026-11-01
 
 ## Contesto
@@ -32,7 +32,8 @@ finché il motivo resta dentro il pool.
   `[0,1,0,2,0,3]`). I preset possono scriverlo come intervalli con segno (`[+2, −1]`), che
   vengono convertiti in offset.
 - `direction`: `up` | `down` | `updown` | `downup`. In discesa il motivo è specchiato
-  dall'alto (`pool[last − i − m]`); in `updown` la nota di svolta non si ripete.
+  dall'alto (`pool[last − i − m]`); in `updown` la nota di svolta non si ripete se il motivo è di
+  una sola nota (con motivi più lunghi si ripete il gruppo intero, così i gruppi restano regolari).
 - `shape`:
   - `forward`: motivo invariato (terze 1-3, 2-4, …);
   - `alternate`: motivo invertito a gradini alterni (1-3, 4-2, 3-5, 6-4 …);
@@ -49,10 +50,11 @@ L'estensione (1, 2 o 3 ottave dalla tonica più grave, oppure tutta) si applica 
 - `cells`: ciclo di celle `{dur (battiti), rest?}` applicato in sequenza alle note:
   ottavi `[½]`, terzine `[⅓]`, sedicesimi `[¼]`, quintine `[⅕]`, sestine `[⅙]`; celle composte
   come galoppo `[½, ¼, ¼]`, puntato `[¾, ¼]`, pausa `[¼, ¼, ¼, {¼, rest}]`.
-- `swing`: rapporto 0–⅓ sulle coppie di ottavi.
-- `accentEvery`: `0` | *g* | `'motif'`. Accento ogni *g* note, indipendente dal battito, oppure
-  sulla prima nota di ogni gruppo melodico (default). Gruppi di 3 su sedicesimi danno il 3 contro 4.
-- `accentOffset`: sposta l'accento dentro il gruppo (0 … g−1): accenti spostati.
+- `swing`: intensità 0–1; con 1 l'ottavo in levare è spostato di ⅙ di battito (feel di terzina).
+- `accent`: `'group'` (default: prima nota di ogni gruppo melodico; se i gruppi sono di una sola
+  nota diventa `'beat'`) | `'beat'` (sul battito) | *g* (ogni *g* note, indipendente dal battito:
+  ogni 3 su sedicesimi = 3 contro 4).
+- `accentOffset`: sposta l'accento dentro il gruppo (0 … g−1), o di N suddivisioni con `'beat'`.
 - `pickup`: numero di note in **levare**. Gli eventi sono traslati di `−pickup · dur` battiti e
   la prima battuta risulta incompleta (anacrusi). La gestione di count-in e loop è nell'ADR 0004,
   la resa in tab nell'ADR 0009.
@@ -60,7 +62,8 @@ L'estensione (1, 2 o 3 ottave dalla tonica più grave, oppure tutta) si applica 
 - `meter`: battiti per battuta (default 4). La sequenza si completa con pause fino a fine
   battuta, così il loop resta in tempo.
 
-Uscita: `[{i, beat, dur, k | null, midi, degree, accent, group}]`, con `k` indice nel pool,
+Il calcolo interno è in tick interi (960 per battito), così terzine, quintine e sestine non
+accumulano errori. Uscita: `[{i, beat, dur, ndur, k | null, midi, degree, accent, group}]` (`ndur` = durata nominale, prima dello swing), con `k` indice nel pool,
 `null` per le pause e `group` indice del gruppo melodico. `beat` può essere negativo per il levare.
 `fingering()` aggiunge poi `{string, fret}` a ogni nota (ADR 0008).
 

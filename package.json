@@ -4,6 +4,6 @@
   "private": true,
   "description": "Interval Master in versione web statica (HTML/CSS/JS, nessun server).",
   "scripts": {
-    "test": "node --test tests/run.test.js"
+    "test": "node --test tests/*.test.js"
   }
 }
